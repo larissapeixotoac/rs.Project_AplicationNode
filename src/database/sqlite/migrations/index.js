@@ -7,8 +7,8 @@ async function migrationsRun() {
     ].join('')
 
     sqliteConnection()
-        .then(db => db.exec(schemas))
-        .catch(error => console.error(error))
+        .catch(error => console.error(error))   
+        // .then(db => db.exec(schemas))
 }
 
 module.exports = migrationsRun

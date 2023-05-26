@@ -5,7 +5,7 @@ const sqlite = require('sqlite')
 
 async function sqliteConnection() {
     const database = await sqlite.open({
-        filename: '/home/larissa/shared/pjApplicationNode_database.db', //using linux on a VM, and i can't access from windows the linux directory
+        filename: '/home/larissa/shared/API_rocketMovies_database.db', //using linux on a VM, and i can't access from windows the linux directory
         driver: sqlite3.Database
     })
 

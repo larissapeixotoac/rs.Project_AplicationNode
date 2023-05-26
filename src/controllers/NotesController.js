@@ -5,7 +5,7 @@ const AppError = require('../utils/AppError')
 class NotesController {
     async create(request, response) {
         const { title, description, rating, tags } = request.body
-        const { user_id } = request.params
+        const user_id  = request.user.id
 
         if(rating < 1 || rating > 5) {
             throw new AppError('A nota do filme não é válida. É aceitos valores inteiros que podem variar de 1 a 5.')
@@ -18,9 +18,7 @@ class NotesController {
         } if(rating > 4 && rating < 5 ) {
             throw new AppError('A nota do filme não é válida. É aceitos valores inteiros que podem variar de 1 a 5.')
         }
-
-        const ratingInt = `${parseInt(rating)}`
-
+        
         const [note_id] = await knex('movie_notes').insert({
             title,
             description,
@@ -38,7 +36,7 @@ class NotesController {
 
         await knex('movie_tags').insert(tagsInsert)
 
-        response.json()
+        return response.json()
     }
 
     async show(request, response) {

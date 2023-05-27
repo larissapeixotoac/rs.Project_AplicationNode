@@ -1,15 +1,13 @@
 // const { response, request } = require('express')
 // const sqliteConnection = require('../database/sqlite')
 const knex = require('../database/knex')
+const { response, request } = require('express')
 const AppError = require('../utils/AppError')
 const { hash, compare } = require('bcryptjs')
 
 class UsersController {
     async create(request, response) {
         const { name, email, password } = request.body
-
-        // const database = await sqliteConnection()
-        // const checkIfUserExist = await database.get('SELECT * FROM users WHERE email = (?)', [email])
         
         const checkIfUserExist = await knex('users').where({ email }).first()
 
@@ -18,8 +16,6 @@ class UsersController {
         }
 
         const hashedPassword = await hash(password, 8)
-
-        // await database.run('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword])
 
         const [id] = await knex('users').insert({
             name,
@@ -33,26 +29,26 @@ class UsersController {
     async update(request, response) {
         const { name, email, password, old_password } = request.body
         const user_id = request.user.id
-        // const database = await sqliteConnection()
-        // const user = await database.get('SELECT * FROM users WHERE id = (?)', [id])
-        const id = user_id
+
+        const user = await knex('users').where({ id: user_id }).first()
         
-        const user = await knex('users').where({ id }).first()
-                
         if(!user) {
             throw new AppError('Usuário não encontrado.')
         }
         
-        // const userWithUpdateEmail = await database.get('SELECT * FROM users WHERE email = (?)', [email])
+        const userWithUpdateEmail = await knex('users').where({email: email}).first()
 
-        const userWithUpdateEmail = await knex('users').where({ email })
-        
-        if((userWithUpdateEmail === true) && userWithUpdateEmail.id !== user.id) {
+        if(userWithUpdateEmail && userWithUpdateEmail.id !== user.id) {
             throw new AppError('Este e-mail já está em uso')
         }
-        
-        user.name = name ?? user.name
-        user.email = email ?? user.email
+
+        if(name.length !== 0) {
+            user.name = name
+        }
+
+        if(email.length !== 0) {
+            user.email = email
+        }
         
         if(password && old_password) {
             const checkOldPassword = await compare(old_password, user.password)
@@ -64,22 +60,12 @@ class UsersController {
             user.password = await hash(password, 8)
         }
         
-        // await database.run(`
-        //     UPDATE users SET
-        //     name = ?,
-        //     email = ?,
-        //     password = ?,
-        //     updated_at = DATETIME('now')
-        //     WHERE id = ?`,
-        //     [user.name, user.email, user.password, id]
-        // )
-
         await knex('users')
-            .where({ id })
+            .where({ id: user_id })
             .update({
-                name,
-                email,
-                password
+                name: user.name,
+                email: user.email,
+                password: user.password
             })
             .update('updated_at', knex.fn.now())   
 

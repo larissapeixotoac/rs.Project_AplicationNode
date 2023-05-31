@@ -5,7 +5,8 @@ module.exports = {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: '/home/larissa/shared/API_rocketMovies_database.db'
+      filename: path.resolve(__dirname, 'src', 'database', 'API_rocketMovies_database.db')
+      // filename: '/home/larissa/shared/API_rocketMovies_database.db'
     },
     pool: {
       afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
